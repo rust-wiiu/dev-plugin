@@ -1,0 +1,10 @@
+[package]
+name = "dev-plugin"
+version = "0.2.0"
+edition = "2021"
+authors = ["29th-Day"]
+license = "EUPL"
+
+[dependencies]
+wut = { path = "../wut-rs", version = "*" }
+wups = { path = "../wups-rs", version = "*", features = ["panic_handler"] }
