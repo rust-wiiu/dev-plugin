@@ -8,3 +8,4 @@ license = "EUPL"
 [dependencies]
 wut = { path = "../wut-rs", version = "*" }
 wups = { path = "../wups-rs", version = "*", features = ["panic_handler"] }
+notifications = { path = "../notifications", version = "*" }
