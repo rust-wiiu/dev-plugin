@@ -3,8 +3,6 @@
 
 extern crate notifications;
 
-use core::any::Any;
-
 // when I put wups above wut the program wont compile wtf
 // Order seems to matter (somehow):
 // wups > wut -> doesnt compile (unless -Wl,--allow-multiple-definition but then it wont run)
@@ -14,6 +12,8 @@ use wut::*;
 
 use wups::prelude::*;
 use wups::*;
+
+mod menu;
 
 WUPS_PLUGIN_NAME!("Rust Plugin");
 
@@ -60,19 +60,9 @@ impl ConfigMenu for MyMenu {
     }
 }
 
-// extern "C" {
-//     #[link_section = ".data"]
-//     static mut real_VPADRead: unsafe extern "C" fn(
-//         channel: wut::bindings::VPADChan::Type,
-//         buf: *mut wut::bindings::VPADStatus,
-//         count: u32,
-//         error: *mut wut::bindings::VPADReadError::Type,
-//     ) -> i32;
-// }
-
 static mut INPUT: gamepad::GamepadState = gamepad::GamepadState::empty();
 
-#[function_hook(library = VPAD, function = VPADRead)]
+#[function_hook(module = VPAD, function = VPADRead)]
 fn my_VPADRead(
     chan: wut::bindings::VPADChan::Type,
     buffers: *mut wut::bindings::VPADStatus,
@@ -81,7 +71,15 @@ fn my_VPADRead(
 ) -> i32 {
     let status = unsafe { hooked.unwrap()(chan, buffers, count, error) };
 
-    unsafe { INPUT = gamepad::GamepadState::from(*buffers) };
+    use gamepad::Button as B;
+    unsafe {
+        INPUT = gamepad::GamepadState::from(*buffers);
+
+        if INPUT.hold.contains(B::L | B::R) {
+            (*buffers).hold = 0;
+            (*buffers).trigger = 0;
+        }
+    }
 
     status
 }
@@ -112,6 +110,7 @@ fn start() {
         *thread = Some(
             thread::Builder::default()
                 .name("Rust Thread")
+                .priority(30)
                 .spawn(my_thread)
                 .unwrap(),
         );
@@ -122,6 +121,16 @@ fn my_thread() {
     let _ = logger::init(logger::Udp);
 
     let hud = notifications::dynamic("").show().unwrap();
+
+    menu::NotificationMenu {
+        hud: notifications::dynamic("").show().unwrap(),
+        items: vec![
+            menu::MenuItem::new("A", || println!("A")),
+            menu::MenuItem::new("B", || println!("B")),
+        ],
+        pos: 0,
+        icon: wups::config::glyphs::CafeGlyphs::ARROW_RIGHT,
+    };
 
     struct Cursor {
         pos: usize,
@@ -178,37 +187,42 @@ fn my_thread() {
 
     use gamepad::Button as B;
 
+    let mut input = unsafe { INPUT };
+
     while thread::current().running() {
         // println!("thread: {}", time::DateTime::now());
 
-        // let input = match gamepad.poll() {
-        //     Ok(s) => s,
-        //     Err(_) => gamepad::GamepadState::empty(),
-        //     // Err(e) => panic!("{:?}", e),
-        // };
+        if input != unsafe { INPUT } {
+            input = unsafe { INPUT };
 
-        // // println!("{:?}", input.hold);
+            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Left) {
+                println!("{} - {:?}", time::DateTime::now(), input);
+                cursor.sub();
+            }
 
-        // if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Left) {
-        //     cursor.sub();
-        // }
+            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Right) {
+                println!("{} - {:?}", time::DateTime::now(), input);
+                cursor.add();
+            }
 
-        // if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Right) {
-        //     cursor.add();
-        // }
-
-        // if cursor.has_changed() {
-        //     hud.text(&format!("{}", render_menu(cursor.pos, &items, cursor.icon)));
-        // }
-
-        unsafe {
-            println!("{:?}", INPUT);
+            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::A) {
+                println!("{:?}", &items[cursor.pos]);
+            }
         }
-        thread::sleep(time::Duration::from_secs(1));
+
+        if cursor.has_changed() {
+            let _ = hud.text(&format!("{}", render_menu(cursor.pos, &items, cursor.icon)));
+            println!("update");
+        }
+
         // unsafe {
-        //     wut::bindings::GX2WaitForFlip();
-        //     wut::bindings::GX2WaitForFlip();
+        //     println!("{:?}", INPUT);
         // }
+        // thread::sleep(time::Duration::from_secs(1));
+        unsafe {
+            wut::bindings::GX2WaitForFlip();
+            // wut::bindings::GX2WaitForFlip();
+        }
     }
 
     logger::deinit();
