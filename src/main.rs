@@ -13,7 +13,9 @@ use wut::*;
 use wups::prelude::*;
 use wups::*;
 
-mod menu;
+// mod menu;
+mod overlay;
+// mod test;
 
 WUPS_PLUGIN_NAME!("Rust Plugin");
 
@@ -110,6 +112,7 @@ fn start() {
         *thread = Some(
             thread::Builder::default()
                 .name("Rust Thread")
+                .attribute(thread::thread::ThreadAttribute::Cpu2)
                 .priority(30)
                 .spawn(my_thread)
                 .unwrap(),
@@ -120,72 +123,22 @@ fn start() {
 fn my_thread() {
     let _ = logger::init(logger::Udp);
 
-    let hud = notifications::dynamic("").show().unwrap();
+    use overlay::*;
 
-    menu::NotificationMenu {
-        hud: notifications::dynamic("").show().unwrap(),
-        items: vec![
-            menu::MenuItem::new("A", || println!("A")),
-            menu::MenuItem::new("B", || println!("B")),
+    let mut overlay = OverlayNotification::new(Menu::new(
+        "Root",
+        vec![
+            Button::new("Button 1", || println!("Pressed")),
+            Button::new("Button 2", || println!("Pressed")),
+            Menu::new(
+                "Health",
+                vec![Number::new("Set Health", 1, 1, 0, 12, |v| unsafe {
+                    let ptr = core::mem::transmute::<usize, *mut u8>(0x1506b503);
+                    *ptr = *v;
+                })],
+            ),
         ],
-        pos: 0,
-        icon: wups::config::glyphs::CafeGlyphs::ARROW_RIGHT,
-    };
-
-    struct Cursor {
-        pos: usize,
-        max: usize,
-        changed: bool,
-        icon: char,
-    }
-
-    impl Cursor {
-        fn new(max: usize) -> Self {
-            Self {
-                pos: 0,
-                max,
-                changed: true,
-                icon: config::glyphs::CafeGlyphs::ARROW_RIGHT,
-            }
-        }
-
-        fn add(&mut self) {
-            self.pos = (self.pos + 1) % self.max;
-            self.changed = true;
-        }
-
-        fn sub(&mut self) {
-            self.pos = (self.pos + self.max - 1) % self.max;
-            self.changed = true;
-        }
-
-        fn has_changed(&mut self) -> bool {
-            let x = self.changed;
-            self.changed = false;
-            x
-        }
-    }
-
-    let items = vec!["A", "B", "C"];
-    let mut cursor = Cursor::new(items.len());
-
-    fn render_menu(pos: usize, options: &[&str], cursor: char) -> String {
-        format!(
-            "{}",
-            options
-                .iter()
-                .enumerate()
-                .map(|(i, &opt)| if i == pos {
-                    format!("{cursor}{opt}")
-                } else {
-                    format!("\u{3000}{opt}")
-                })
-                .collect::<Vec<_>>()
-                .join("    ") // Ensure consistent spacing
-        )
-    }
-
-    use gamepad::Button as B;
+    ));
 
     let mut input = unsafe { INPUT };
 
@@ -195,33 +148,11 @@ fn my_thread() {
         if input != unsafe { INPUT } {
             input = unsafe { INPUT };
 
-            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Left) {
-                println!("{} - {:?}", time::DateTime::now(), input);
-                cursor.sub();
-            }
-
-            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::Right) {
-                println!("{} - {:?}", time::DateTime::now(), input);
-                cursor.add();
-            }
-
-            if input.hold.contains(B::L | B::R) && input.trigger.contains(B::A) {
-                println!("{:?}", &items[cursor.pos]);
-            }
+            overlay.run(input);
         }
 
-        if cursor.has_changed() {
-            let _ = hud.text(&format!("{}", render_menu(cursor.pos, &items, cursor.icon)));
-            println!("update");
-        }
-
-        // unsafe {
-        //     println!("{:?}", INPUT);
-        // }
-        // thread::sleep(time::Duration::from_secs(1));
         unsafe {
             wut::bindings::GX2WaitForFlip();
-            // wut::bindings::GX2WaitForFlip();
         }
     }
 
