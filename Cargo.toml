@@ -6,6 +6,8 @@ authors = ["29th-Day"]
 license = "EUPL"
 
 [dependencies]
-wut = { path = "../wut-rs", version = "*" }
-wups = { path = "../wups-rs", version = "*", features = ["panic_handler"] }
-notifications = { path = "../notifications", version = "*" }
+wups = { path = "../wups", version = "*", features = ["panic_handler"] }
+wut = { path = "../wut", version = "*" }
+# notifications = { path = "../notifications", version = "*" }
+# kernel = { path = "../kernel", version = "*" }
+overlay = { path = "../overlay", version = "*" }

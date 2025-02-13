@@ -1,11 +1,15 @@
-extend = [
-    { path = "../wut-rs/Makefile.toml" },
-    { path = "../wups-rs/Makefile.toml" },
-]
+extend = [{ path = "../wut/Makefile.toml" }, { path = "../wups/Makefile.toml" }]
 
 [env]
-WUT_DIR = "../wut-rs"
-WUPS_DIR = "../wups-rs"
+WUT_DIR = "../wut"
+
+[tasks.build]
+clear = true
+dependencies = ["wups"]
+
+[tasks.run]
+clear = true
+dependencies = ["upload-wiiload"]
 
 [tasks.upload-wiiload]
 command = "wiiload"
