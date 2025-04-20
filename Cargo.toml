@@ -8,6 +8,6 @@ license = "EUPL"
 [dependencies]
 wups = { path = "../wups", version = "*", features = ["panic_handler"] }
 wut = { path = "../wut", version = "*" }
-# notifications = { path = "../notifications", version = "*" }
+notifications = { path = "../notifications", version = "*" }
 # kernel = { path = "../kernel", version = "*" }
 overlay = { path = "../overlay", version = "*" }

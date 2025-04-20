@@ -143,6 +143,7 @@ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 name = "dev-plugin"
 version = "0.2.0"
 dependencies = [
+ "notifications",
  "overlay",
  "wups",
  "wut",
@@ -229,6 +230,13 @@ name = "log"
 version = "0.4.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
+
+[[package]]
+name = "math"
+version = "0.1.0"
+dependencies = [
+ "bindgen 0.71.1",
+]
 
 [[package]]
 name = "memchr"
@@ -375,6 +383,13 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "sys"
+version = "0.1.0"
+dependencies = [
+ "bindgen 0.71.1",
 ]
 
 [[package]]
@@ -559,8 +574,9 @@ dependencies = [
 name = "wut"
 version = "0.1.0"
 dependencies = [
- "bindgen 0.70.1",
  "flagset",
+ "math",
+ "sys",
  "thiserror",
  "wut-macros",
 ]
