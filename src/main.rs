@@ -11,6 +11,10 @@ use wut::*;
 use wups::prelude::*;
 use wups::*;
 
+use wupf::{
+    hook_on_input, hook_on_update, hook_plugin, Handler, OnInput, OnUpdate, Plugin, StaticHandler,
+};
+
 WUPS_PLUGIN_NAME!("Rust Plugin");
 
 struct MyMenu;
@@ -54,71 +58,55 @@ impl ConfigMenu for MyMenu {
     }
 }
 
-static mut INPUT: gamepad::GamepadState = gamepad::GamepadState::new();
+struct MyPlugin {
+    a: u32,
+}
 
-#[function_hook(module = VPAD, function = VPADRead)]
-fn my_VPADRead(
-    chan: wut::bindings::VPADChan::Type,
-    buffers: *mut wut::bindings::VPADStatus,
-    count: u32,
-    error: *mut wut::bindings::VPADReadError::Type,
-) -> i32 {
-    let status = unsafe { hooked(chan, buffers, count, error) };
+impl StaticHandler for MyPlugin {
+    fn handler() -> &'static Handler<Self> {
+        static HANDLER: Handler<MyPlugin> = Handler::new();
+        &HANDLER
+    }
+}
 
-    unsafe {
-        INPUT = gamepad::GamepadState::from(*buffers);
+hook_plugin!(MyPlugin);
+impl Plugin for MyPlugin {
+    fn on_init() -> Self {
+        let _ = MyMenu::init(PLUGIN_NAME).unwrap();
 
-        use gamepad::Button as B;
-
-        if INPUT.trigger.contains(B::Y) {
-            println!("Y");
-            // foreground::browser::browser(None);
-            // foreground::browser(Some("https://www.google.com/"));
-            foreground::e_shop();
-        }
+        Self { a: 0 }
     }
 
-    status
+    fn on_deinit(&mut self) {}
+
+    fn on_start(&mut self) {
+        let _ = logger::udp();
+
+        self.a += 1;
+        println!("start: {}", self.a);
+    }
+
+    fn on_exit(&mut self) {
+        self.a += 1;
+        println!("end: {}", self.a);
+
+        logger::deinit();
+    }
 }
 
-#[on_initialize(Udp)]
-fn init() {
-    println!("init");
-
-    // dynamic_loading::RplCallback::new(|| {
-    //     println!("rpl loaded");
-    // });
-
-    let _ = MyMenu::init("My Menu Rust Plugin");
-
-    // let s = m.data::<*const u32>("MyData").unwrap();
-
-    // let r = *s;
+hook_on_input!(MyPlugin);
+impl OnInput for MyPlugin {
+    fn on_input(&mut self, port: gamepad::Port, state: gamepad::State) -> Option<gamepad::State> {
+        if !state.hold.is_empty() {
+            println!("port: {:?}, hold: {:?}", port, state.hold);
+        }
+        None
+    }
 }
 
-#[on_application_start]
-fn start() {
-    let _ = logger::udp();
-
-    println!("start");
-
-    use dynamic_loading::Module;
-
-    let m = Module::new("coreinit.rpl").unwrap();
-
-    let s = m
-        .function::<unsafe extern "C" fn() -> u64>("OSGetTitleID")
-        .unwrap();
-
-    println!("symbol: {:?}", unsafe { s.into_raw() });
+hook_on_update!(MyPlugin);
+impl OnUpdate for MyPlugin {
+    fn on_update(&mut self) {
+        // println!("Update");
+    }
 }
-
-#[on_application_exit]
-fn stop() {
-    logger::deinit();
-}
-
-// #[on_deinitialize]
-// fn deinit() {
-//     // println!("deinit");
-// }
