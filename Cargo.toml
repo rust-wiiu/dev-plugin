@@ -6,9 +6,9 @@ authors = ["29th-Day"]
 license = "EUPL"
 
 [dependencies]
-wups = { path = "../wups", version = "*" }
-wut = { path = "../wut", version = "*" }
-notifications = { path = "../notifications", version = "*" }
-# kernel = { path = "../kernel", version = "*" }
-overlay = { path = "../overlay", version = "*" }
-wupf = { path = "../wupf", version = "*" }
+wups = { git = "https://github.com/rust-wiiu/wups", branch = "main" }
+wut = { git = "https://github.com/rust-wiiu/wut", branch = "main" }
+notifications = { git = "https://github.com/rust-wiiu/notifications", branch = "main" }
+# kernel = { git = "../kernel", version = "*" }
+overlay = { git = "https://github.com/rust-wiiu/overlay", branch = "main" }
+wupf = { git = "https://github.com/rust-wiiu/wupf", branch = "main" }

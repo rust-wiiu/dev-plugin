@@ -216,6 +216,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 [[package]]
 name = "math"
 version = "0.1.0"
+source = "git+https://github.com/rust-wiiu/wut?branch=main#1895a62aa6d83977dfad3a79a796d49e16371d70"
 dependencies = [
  "bindgen",
 ]
@@ -245,6 +246,7 @@ dependencies = [
 [[package]]
 name = "notifications"
 version = "0.2.0"
+source = "git+https://github.com/rust-wiiu/notifications?branch=main#10e4886f0f1f97efa21db4bc82eb6b3b727ccff9"
 dependencies = [
  "bindgen",
  "flagset",
@@ -270,6 +272,7 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 [[package]]
 name = "overlay"
 version = "0.2.0"
+source = "git+https://github.com/rust-wiiu/overlay?branch=main#2ac1229aaa363afdf7617924e87258c7d57102c5"
 dependencies = [
  "notifications",
  "wut",
@@ -364,6 +367,7 @@ dependencies = [
 [[package]]
 name = "sys"
 version = "0.1.0"
+source = "git+https://github.com/rust-wiiu/wut?branch=main#1895a62aa6d83977dfad3a79a796d49e16371d70"
 dependencies = [
  "bindgen",
 ]
@@ -578,6 +582,7 @@ checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
 [[package]]
 name = "wupf"
 version = "0.2.0"
+source = "git+https://github.com/rust-wiiu/wupf?branch=main#d7b28852480de0c6f299a3b6cf4b6dbdc76337f6"
 dependencies = [
  "wups",
  "wut",
@@ -586,6 +591,7 @@ dependencies = [
 [[package]]
 name = "wups"
 version = "0.2.0"
+source = "git+https://github.com/rust-wiiu/wups?branch=main#8771eb20c6273e957a049d6c7351bcac2b7ba55c"
 dependencies = [
  "bindgen",
  "flagset",
@@ -597,6 +603,7 @@ dependencies = [
 [[package]]
 name = "wups-macros"
 version = "0.1.0"
+source = "git+https://github.com/rust-wiiu/wups?branch=main#8771eb20c6273e957a049d6c7351bcac2b7ba55c"
 dependencies = [
  "chrono",
  "proc-macro2",
@@ -607,6 +614,7 @@ dependencies = [
 [[package]]
 name = "wut"
 version = "0.2.0"
+source = "git+https://github.com/rust-wiiu/wut?branch=main#1895a62aa6d83977dfad3a79a796d49e16371d70"
 dependencies = [
  "flagset",
  "math",
@@ -618,6 +626,7 @@ dependencies = [
 [[package]]
 name = "wut-macros"
 version = "0.1.0"
+source = "git+https://github.com/rust-wiiu/wut?branch=main#1895a62aa6d83977dfad3a79a796d49e16371d70"
 dependencies = [
  "proc-macro2",
  "quote",
