@@ -5,11 +5,10 @@
 // Order seems to matter (somehow):
 // wups > wut -> doesn't compile (unless -Wl,--allow-multiple-definition but then it wont run)
 // wut > wups -> compiles normally
-use wut::prelude::*;
-use wut::*;
-
 use wups::prelude::*;
 use wups::*;
+use wut::prelude::*;
+use wut::*;
 
 use wupf::{
     hook_on_input, hook_on_update, hook_plugin, Handler, OnInput, OnUpdate, Plugin, StaticHandler,
